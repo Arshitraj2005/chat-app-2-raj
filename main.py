@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session, redirect
 from flask_socketio import SocketIO, emit, join_room
 from datetime import timedelta
 
-app = Flask(name)
+app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 app.permanent_session_lifetime = timedelta(minutes=60)
 socketio = SocketIO(app)
