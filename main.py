@@ -7,7 +7,7 @@ app.secret_key = 'supersecretkey'
 app.permanent_session_lifetime = timedelta(minutes=60)
 socketio = SocketIO(app)
 
-PASSWORD = "2310khushi"
+PASSWORD = "2310"
 chat_messages = []
 
 @app.route("/", methods=["GET", "POST"])
