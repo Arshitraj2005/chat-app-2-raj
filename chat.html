@@ -1,26 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OnlineCart Chat</title>
+    <title>Private Chat</title>
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <style>
-        body { font-family: Arial; background: #f0f0f0; padding: 20px; }
-        .chat-box { background: white; padding: 10px; border-radius: 5px; max-width: 600px; margin: auto; }
-        .message { margin-bottom: 10px; }
-        .message strong { color: #333; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        #chat-box {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background: #fff;
+        }
+        #typing-status {
+            font-style: italic;
+            color: gray;
+        }
+        .message {
+            margin: 5px 0;
+        }
+        .you { color: blue; }
+        .me { color: green; }
     </style>
 </head>
 <body>
-    <div class="chat-box">
-        <h3>Private Chat</h3>
-        {% for user, message in chat %}
-            <div class="message"><strong>{{ user }}:</strong> {{ message }}</div>
+    <h2>Welcome to Chat</h2>
+
+    <div id="chat-box">
+        {% for msg in messages %}
+            <div class="message"><strong class="{{ 'you' if msg.sender == 'You' else 'me' }}">{{ msg.sender }}:</strong> {{ msg.message }}</div>
         {% endfor %}
-        <form method="POST">
-            <input type="text" name="user" placeholder="He/She" required>
-            <input type="text" name="message" placeholder="Type your message..." required>
-            <button type="submit">Send</button>
-        </form>
-        <br><a href="/logout">Logout</a>
     </div>
+
+    <div id="typing-status"></div>
+
+    <form id="chat-form">
+        <input type="text" id="message" autocomplete="off" placeholder="Type your message..." required />
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        const socket = io();
+
+        const chatBox = document.getElementById('chat-box');
+        const form = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message');
+        const typingStatus = document.getElementById('typing-status');
+
+        // Send message
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const msg = messageInput.value;
+            socket.emit('send_message', { sender: 'You', message: msg });
+            messageInput.value = '';
+        });
+
+        // Typing event
+        messageInput.addEventListener('input', () => {
+            socket.emit('typing', { sender: 'Someone is typing...' });
+        });
+
+        // Receive message
+        socket.on('new_message', (data) => {
+            const div = document.createElement('div');
+            div.classList.add('message');
+            div.innerHTML = <strong class="${data.sender === 'You' ? 'you' : 'me'}">${data.sender}:</strong> ${data.message};
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            typingStatus.innerText = '';
+        });
+
+        // Receive typing
+        socket.on('user_typing', (data) => {
+            typingStatus.innerText = data.sender;
+            setTimeout(() => {
+                typingStatus.innerText = '';
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
