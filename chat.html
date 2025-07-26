@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OnlineCart Chat</title>
+    <style>
+        body { font-family: Arial; background: #f0f0f0; padding: 20px; }
+        .chat-box { background: white; padding: 10px; border-radius: 5px; max-width: 600px; margin: auto; }
+        .message { margin-bottom: 10px; }
+        .message strong { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="chat-box">
+        <h3>Private Chat</h3>
+        {% for user, message in chat %}
+            <div class="message"><strong>{{ user }}:</strong> {{ message }}</div>
+        {% endfor %}
+        <form method="POST">
+            <input type="text" name="user" placeholder="He/She" required>
+            <input type="text" name="message" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
+        <br><a href="/logout">Logout</a>
+    </div>
+</body>
+</html>
